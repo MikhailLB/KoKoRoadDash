@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+	<!--
+	  Privacy Manifest for Koko Road Dash
+	  Bundle: com.kokogames.koko
+
+	  The app does NOT:
+	    - collect or transmit personal data
+	    - use advertising identifiers (IDFA)
+	    - use third-party analytics or advertising SDKs
+	    - fingerprint devices
+	    - track users across apps or websites
+
+	  Required API usages declared below:
+	    • NSUserDefaults (SharedPreferences) — for local game progress only.
+	-->
+
+	<!-- We do not engage in tracking as defined by App Tracking Transparency. -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+
+	<!-- No network domains used for tracking. -->
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+
+	<!-- No personal data is collected from users. -->
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+
+	<!--
+	  Required Reason APIs used by first-party code and Flutter plugins.
+
+	  NSUserDefaults (used by shared_preferences plugin):
+	    Reason CA92.1 — "Used to read and write information that is only
+	    accessible to the app itself."  Matches our use of SharedPreferences
+	    for saving level progress, coins, skin selection, and settings.
+	-->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<!-- App-only preferences, not used for device fingerprinting. -->
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+
+</dict>
+</plist>

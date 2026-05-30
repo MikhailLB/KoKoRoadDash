@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB"
+          version="3.0" toolsVersion="32700.99.1234"
+          systemVersion="21E226" targetRuntime="iOS.CocoaTouch"
+          propertyAccessControl="none" useAutolayout="YES"
+          launchScreen="YES" colorMatched="YES"
+          initialViewController="01J-lp-oVM">
+
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+
+    <scenes>
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <!-- Centred logo, 60% of the narrower screen dimension -->
+                            <imageView
+                                opaque="NO"
+                                clipsSubviews="YES"
+                                multipleTouchEnabled="YES"
+                                contentMode="scaleAspectFit"
+                                image="LaunchImage"
+                                translatesAutoresizingMaskIntoConstraints="NO"
+                                id="YRO-k0-Ey4"/>
+                        </subviews>
+
+                        <!-- Koko nightDeep: R=14/255 G=26/255 B=56/255 -->
+                        <color key="backgroundColor"
+                               red="0.054901961"
+                               green="0.10196078"
+                               blue="0.21960784"
+                               alpha="1"
+                               colorSpace="custom"
+                               customColorSpace="sRGB"/>
+
+                        <constraints>
+                            <constraint firstItem="YRO-k0-Ey4"
+                                        firstAttribute="centerX"
+                                        secondItem="Ze5-6b-2t3"
+                                        secondAttribute="centerX"
+                                        id="1a2-6s-vTC"/>
+                            <constraint firstItem="YRO-k0-Ey4"
+                                        firstAttribute="centerY"
+                                        secondItem="Ze5-6b-2t3"
+                                        secondAttribute="centerY"
+                                        id="4X2-HB-R7a"/>
+                            <!-- 60 % of the parent width -->
+                            <constraint firstItem="YRO-k0-Ey4"
+                                        firstAttribute="width"
+                                        secondItem="Ze5-6b-2t3"
+                                        secondAttribute="width"
+                                        multiplier="0.6"
+                                        id="wdA-Bq-k9P"/>
+                            <!-- Aspect ratio 1:1 square clipping region -->
+                            <constraint firstItem="YRO-k0-Ey4"
+                                        firstAttribute="height"
+                                        secondItem="YRO-k0-Ey4"
+                                        secondAttribute="width"
+                                        multiplier="1"
+                                        id="hAR-xy-z12"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder"
+                             id="iYj-Kq-Ea1"
+                             userLabel="First Responder"
+                             sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+
+    <resources>
+        <image name="LaunchImage" width="512" height="512"/>
+    </resources>
+</document>

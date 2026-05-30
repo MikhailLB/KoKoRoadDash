@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  ExportOptions.plist — used when exporting an Xcode archive for App Store.
+
+	  Usage:
+	    xcodebuild -exportArchive \
+	      -archivePath build/Runner.xcarchive \
+	      -exportPath build/ipa \
+	      -exportOptionsPlist ios/ExportOptions.plist
+
+	  Or: in Xcode → Product → Archive → Distribute App,
+	  choose "App Store Connect" and Xcode will use equivalent settings.
+	-->
+
+	<!-- Distribute via App Store Connect -->
+	<key>method</key>
+	<string>app-store</string>
+
+	<!-- Automatically manage signing (recommended; Xcode picks the right cert) -->
+	<key>signingStyle</key>
+	<string>automatic</string>
+
+	<!-- Upload symbols so crash reports are symbolicated in Xcode Organizer -->
+	<key>uploadSymbols</key>
+	<true/>
+
+	<!-- Do NOT upload the binary to App Store automatically after export.
+	     Upload manually via Xcode Organizer or Transporter. -->
+	<key>uploadBitcode</key>
+	<false/>
+
+	<key>compileBitcode</key>
+	<false/>
+
+	<!-- Strip Swift symbols to reduce IPA size -->
+	<key>stripSwiftSymbols</key>
+	<true/>
+
+	<!-- Thinning for All Variants generates per-device sliced IPAs -->
+	<key>thinning</key>
+	<string>&lt;thin-for-all-variants&gt;</string>
+
+	<!-- Your provisioning profiles keyed by bundle ID.
+	     Leave empty to rely on Xcode Automatic Signing. -->
+	<key>provisioningProfiles</key>
+	<dict/>
+
+</dict>
+</plist>
