@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase config (contains API keys — keep local only)
+/android/app/google-services.json
+
+# Debug info for obfuscated builds
+/build/debug_info/
+
+# Signing credentials
+/android/key.properties
+/android/koko.keystore
