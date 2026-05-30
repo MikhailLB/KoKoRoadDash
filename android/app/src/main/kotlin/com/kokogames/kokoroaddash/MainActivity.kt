@@ -1,4 +1,4 @@
-package com.kokogames.koko_road_dash
+package com.kokogames.kokoroaddash
 
 import io.flutter.embedding.android.FlutterActivity
 

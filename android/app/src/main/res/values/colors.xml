@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Koko nightDeep — matches AppColors.nightDeep (#0E1A38) -->
+    <color name="koko_night_deep">#0E1A38</color>
+</resources>
