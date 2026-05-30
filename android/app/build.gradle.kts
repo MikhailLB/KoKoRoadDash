@@ -1,7 +1,19 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// ---- Signing: read from android/key.properties (not committed to git) ----
+val keystoreFile = rootProject.file("key.properties")
+
+fun prop(key: String): String {
+    if (!keystoreFile.exists()) return ""
+    val p = Properties()
+    p.load(keystoreFile.reader())
+    return p.getProperty(key, "")
 }
 
 android {
@@ -14,13 +26,25 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystoreFile.exists()) {
+                storeFile     = rootProject.file(prop("storeFile"))
+                storePassword = prop("storePassword")
+                keyAlias      = prop("keyAlias")
+                keyPassword   = prop("keyPassword")
+            }
+        }
     }
 
     defaultConfig {
         applicationId = "com.kokogames.kokoroaddash"
-        // video_player requires 21+; url_launcher requires 21+
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = flutter.versionCode
@@ -29,10 +53,13 @@ android {
 
     buildTypes {
         release {
-            // TODO: replace with your own keystore before publishing to Play Store.
-            signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            signingConfig = if (keystoreFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            isMinifyEnabled    = false
+            isShrinkResources  = false
         }
     }
 }
