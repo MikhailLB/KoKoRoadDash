@@ -4,7 +4,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text.dart';
 
 /// Full-screen "No Internet" error using KokoRoadDash branded webp backgrounds.
-/// Portrait → assets/nowifi/Vertical_Nowifi_Screen.webp
+/// The webp already contains all text/icons — we only overlay the Retry button.
+/// Portrait  → assets/nowifi/Vertical_Nowifi_Screen.webp
 /// Landscape → assets/nowifi/Horizontal_Nowifi_Screen.webp
 class OfflineWall extends StatefulWidget {
   final WidgetBuilder retryBuilder;
@@ -18,22 +19,12 @@ class OfflineWall extends StatefulWidget {
 class _OfflineWallState extends State<OfflineWall>
     with TickerProviderStateMixin {
   bool _retrying = false;
-  late AnimationController _pulseCtrl;
-  late Animation<double> _pulse;
   late AnimationController _btnCtrl;
   late Animation<double> _btnScale;
 
   @override
   void initState() {
     super.initState();
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.93, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
-
     _btnCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 120),
@@ -45,7 +36,6 @@ class _OfflineWallState extends State<OfflineWall>
 
   @override
   void dispose() {
-    _pulseCtrl.dispose();
     _btnCtrl.dispose();
     super.dispose();
   }
@@ -67,17 +57,25 @@ class _OfflineWallState extends State<OfflineWall>
     final size = MediaQuery.of(context).size;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
+    final padding = MediaQuery.of(context).padding;
 
     final bgAsset = isLandscape
         ? 'assets/nowifi/Horizontal_Nowifi_Screen.webp'
         : 'assets/nowifi/Vertical_Nowifi_Screen.webp';
+
+    // Button horizontal insets adapt to orientation
+    final double hPad = isLandscape ? size.width * 0.30 : 36.0;
+    // Bottom inset accounts for camera notch in landscape + system padding
+    final double bPad = isLandscape
+        ? (padding.bottom + 20).clamp(20.0, 60.0)
+        : (padding.bottom + 48).clamp(48.0, 100.0);
 
     return Scaffold(
       backgroundColor: AppColors.nightDeep,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Branded background
+          // Full-screen branded background (contains all text/icons)
           Image.asset(
             bgAsset,
             fit: BoxFit.cover,
@@ -85,80 +83,16 @@ class _OfflineWallState extends State<OfflineWall>
             height: size.height,
           ),
 
-          // Dark scrim so buttons are legible
-          Container(color: Colors.black.withValues(alpha: 0.35)),
-
-          // Retry button positioned at bottom
-          SafeArea(
-            child: Align(
-              alignment: isLandscape
-                  ? Alignment.bottomCenter
-                  : Alignment.bottomCenter,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: isLandscape ? size.width * 0.34 : 36,
-                  right: isLandscape ? size.width * 0.34 : 36,
-                  bottom: isLandscape ? 20 : 56,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Pulsing icon
-                    AnimatedBuilder(
-                      animation: _pulse,
-                      builder: (_, _) => Transform.scale(
-                        scale: _pulse.value,
-                        child: Container(
-                          width: isLandscape ? 72 : 90,
-                          height: isLandscape ? 72 : 90,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.neon.withValues(alpha: 0.12),
-                            border: Border.all(
-                              color: AppColors.neon.withValues(alpha: 0.5),
-                              width: 2,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.wifi_off_rounded,
-                            size: isLandscape ? 36 : 46,
-                            color: AppColors.neon,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    Text(
-                      'No Connection',
-                      style: AppText.title(size: isLandscape ? 18 : 22),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Text(
-                      'Check your connection and tap Retry',
-                      style: AppText.body(
-                        size: 14,
-                        color: AppColors.cream.withValues(alpha: 0.7),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    // Retry button — Koko neon style
-                    ScaleTransition(
-                      scale: _btnScale,
-                      child: _RetryButton(
-                        retrying: _retrying,
-                        onTap: _onRetry,
-                      ),
-                    ),
-                  ],
-                ),
+          // Only the Retry button, anchored to the bottom
+          Positioned(
+            left: hPad,
+            right: hPad,
+            bottom: bPad,
+            child: ScaleTransition(
+              scale: _btnScale,
+              child: _RetryButton(
+                retrying: _retrying,
+                onTap: _onRetry,
               ),
             ),
           ),
@@ -177,7 +111,6 @@ class _RetryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
       height: 56,
       child: DecoratedBox(
         decoration: BoxDecoration(

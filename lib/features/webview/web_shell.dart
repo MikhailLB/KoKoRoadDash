@@ -266,6 +266,27 @@ class _WebShellState extends State<WebShell> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Applies safe-area padding correctly for both orientations.
+  ///
+  /// Portrait: top padding = status bar height (status bar visible above WebView).
+  /// Landscape: left/right padding = camera notch insets (device-reported via
+  ///   viewPadding.left / viewPadding.right). This prevents content from being
+  ///   hidden behind the front camera cutout on landscape phones.
+  Widget _buildWebView(BuildContext context) {
+    final vp = MediaQuery.of(context).viewPadding;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final EdgeInsets insets = isLandscape
+        ? EdgeInsets.only(left: vp.left, right: vp.right)
+        : EdgeInsets.only(top: vp.top);
+
+    return Padding(
+      padding: insets,
+      child: WebViewWidget(controller: _wvc),
+    );
+  }
+
   Future<bool> _onPopInvoked() async {
     if (await _wvc.canGoBack()) {
       await _wvc.goBack();
@@ -286,14 +307,7 @@ class _WebShellState extends State<WebShell> with WidgetsBindingObserver {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            Padding(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).orientation == Orientation.landscape
-                    ? 0
-                    : MediaQuery.of(context).viewPadding.top,
-              ),
-              child: WebViewWidget(controller: _wvc),
-            ),
+            _buildWebView(context),
             if (_loading)
               Container(
                 color: Colors.black.withValues(alpha: 0.45),
