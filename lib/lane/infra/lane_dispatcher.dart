@@ -16,13 +16,7 @@ class LaneDispatcher {
 
   Future<LaneVerdict> submit(Map<String, dynamic> body) async {
     final String endpoint = LaneConfig.attributionEndpoint;
-    // ignore: avoid_print
-    print('[DBG][LD] endpoint="${endpoint.isEmpty ? 'EMPTY!' : endpoint}"');
-    // ignore: avoid_print
-    print('[DBG][LD] payload af_status=${body['af_status']} media=${body['media_source']}');
     if (endpoint.isEmpty) {
-      // ignore: avoid_print
-      print('[DBG][LD] endpoint empty → refused');
       return LaneVerdict.refused('endpoint_missing');
     }
     try {
@@ -33,8 +27,6 @@ class LaneDispatcher {
         body: jsonEncode(body),
       ).timeout(const Duration(seconds: 9));
 
-      // ignore: avoid_print
-      print('[DBG][LD] HTTP ${response.statusCode} body=${response.body.length > 300 ? response.body.substring(0, 300) : response.body}');
       if (response.statusCode != 200) {
         return LaneVerdict.refused('http_${response.statusCode}');
       }
@@ -43,8 +35,6 @@ class LaneDispatcher {
         return LaneVerdict.refused('bad_json');
       }
       final LaneVerdict verdict = LaneVerdict.parse(decoded);
-      // ignore: avoid_print
-      print('[DBG][LD] verdict approved=${verdict.approved} target=${verdict.target}');
       if (verdict.approved && verdict.target != null) {
         await _stash.writeShellUrl(verdict.target!);
         if (verdict.validUntil != null) {
@@ -53,8 +43,6 @@ class LaneDispatcher {
       }
       return verdict;
     } catch (err) {
-      // ignore: avoid_print
-      print('[DBG][LD] ERROR: $err');
       return LaneVerdict.refused(err.toString());
     }
   }

@@ -31,31 +31,8 @@ class AttributionWire {
 
   Future<void> prime() => _primeFuture ??= _runPrime();
 
-  // ── Debug override ──────────────────────────────────────────
-  // Set to true to force Non-organic on every boot (simulator / local dev).
-  // MUST be false in release builds — this flag bypasses AppsFlyer entirely.
-  static const bool _kForceNonOrganic = kDebugMode;
-  // ────────────────────────────────────────────────────────────
-
   Future<void> _runPrime() async {
     if (_primed) return;
-
-    if (_kForceNonOrganic) {
-      _primed = true;
-      final Map<String, dynamic> mock = <String, dynamic>{
-        'af_status': 'Non-organic',
-        'media_source': 'debug_mock',
-        'campaign': 'simulator_test',
-        'af_id': 'mock-af-id-0000',
-        'is_first_launch': true,
-      };
-      _conversion = mock; // ← must set field, not only complete the future
-      // ignore: avoid_print
-      print('[DBG][AW] MOCK active → af_status=Non-organic, _conversion set');
-      if (!_conversionDone.isCompleted) _conversionDone.complete(mock);
-      if (!_deepLinkDone.isCompleted) _deepLinkDone.complete();
-      return;
-    }
 
     final String devKey = LaneConfig.installKey;
     if (devKey.isEmpty) {

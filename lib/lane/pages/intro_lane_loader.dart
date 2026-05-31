@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -137,11 +136,7 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
     }
 
     _setPhase(_Phase.empty);
-    // Debug: always reset stored mode so mock always runs the full fresh path.
-    if (kDebugMode) await widget.stash.writeMode(LaneMode.unset);
     final LaneMode mode = widget.stash.readMode();
-    // ignore: avoid_print
-    print('[DBG][LANE] boot mode=$mode laneEnabled=true');
 
     switch (mode) {
       case LaneMode.shell:
