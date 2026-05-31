@@ -49,6 +49,8 @@ class AttributionWire {
         'af_id': 'mock-af-id-0000',
         'is_first_launch': true,
       };
+      // ignore: avoid_print
+      print('[DBG][AW] MOCK active → af_status=Non-organic');
       if (!_conversionDone.isCompleted) _conversionDone.complete(mock);
       if (!_deepLinkDone.isCompleted) _deepLinkDone.complete();
       return;

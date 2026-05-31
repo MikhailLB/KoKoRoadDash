@@ -137,6 +137,8 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
 
     _setPhase(_Phase.empty);
     final LaneMode mode = widget.stash.readMode();
+    // ignore: avoid_print
+    print('[DBG][LANE] boot mode=$mode laneEnabled=true');
 
     switch (mode) {
       case LaneMode.shell:
