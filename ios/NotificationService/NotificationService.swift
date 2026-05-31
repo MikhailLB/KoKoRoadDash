@@ -1,16 +1,14 @@
+import FirebaseMessaging
 import UserNotifications
 
-#if canImport(FirebaseMessaging)
-import FirebaseMessaging
-#endif
-
-/// Notification Service Extension — gives FCM a chance to download and
-/// attach rich media (images) to the push payload BEFORE iOS displays it,
-/// even when the host app is killed.
+/// Notification Service Extension — intercepts incoming pushes before iOS
+/// displays them and asks Firebase Messaging to download and attach the
+/// image specified in `fcm_options.image` (or `notification.image`).
 ///
-/// Backend must include `"mutable-content": 1` in the `aps` payload or
-/// iOS will not invoke this extension. Without media attachment, images
-/// only appear when the Dart isolate is alive at delivery time.
+/// Requirements for rich media to appear:
+///   • Backend APS payload must include `"mutable-content": 1`
+///   • FCM message must include an image URL (fcm_options.image)
+///   • This extension must be installed and signed correctly
 class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
   var bestAttemptContent: UNMutableNotificationContent?
@@ -28,14 +26,10 @@ class NotificationService: UNNotificationServiceExtension {
       return
     }
 
-    #if canImport(FirebaseMessaging)
     Messaging.serviceExtension().populateNotificationContent(
       bestAttemptContent,
       withContentHandler: contentHandler
     )
-    #else
-    contentHandler(bestAttemptContent)
-    #endif
   }
 
   override func serviceExtensionTimeWillExpire() {
