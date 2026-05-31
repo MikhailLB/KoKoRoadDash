@@ -121,7 +121,7 @@ class _NotifyConsentPageState extends State<NotifyConsentPage> {
               final double skipSize = land ? 13.0 : 15.0;
               final double gap = land ? 4.0 : 10.0;
               final Alignment align =
-                  land ? const Alignment(0.72, 0.88) : const Alignment(0, 0.9);
+                  land ? const Alignment(0, 0.92) : const Alignment(0, 0.9);
               return SafeArea(
                 child: Align(
                   alignment: align,
