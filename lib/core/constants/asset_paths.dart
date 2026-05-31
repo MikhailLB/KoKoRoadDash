@@ -12,27 +12,27 @@ class AssetPaths {
 
   // Loading -----------------------------------------------------------------
   static const String loadingVideoVertical =
-      'assets/Loading/vertical_loading_screen.mp4';
+      'assets/Loading/dash_intro_port.mp4';
   static const String loadingVideoHorizontal =
-      'assets/Loading/horizontal_loading_screen.mp4';
+      'assets/Loading/dash_intro_land.mp4';
 
   /// Ordered from empty -> full. Used for the progress bar cross-fade.
   static const List<String> loadingBars = <String>[
-    'assets/Loading/Loading_Bar_Empty.webp',
-    'assets/Loading/Loading_Bar_Half.webp',
-    'assets/Loading/Loading_Bar_Almost.webp',
-    'assets/Loading/Loading_Bar_Full.webp',
+    'assets/Loading/dash_meter_0.webp',
+    'assets/Loading/dash_meter_1.webp',
+    'assets/Loading/dash_meter_2.webp',
+    'assets/Loading/dash_meter_3.webp',
   ];
 
   // Full-screen overlays ----------------------------------------------------
   static const String notificationsVertical =
-      'assets/notifications/Vertical_Notifications_Screen.webp';
+      'assets/notifications/alerts_port.webp';
   static const String notificationsHorizontal =
-      'assets/notifications/Horizontal_Notifications_Screen.webp';
+      'assets/notifications/alerts_land.webp';
   static const String nowifiVertical =
-      'assets/nowifi/Vertical_Nowifi_Screen.webp';
+      'assets/nowifi/offline_port.webp';
   static const String nowifiHorizontal =
-      'assets/nowifi/Horizontal_Nowifi_Screen.webp';
+      'assets/nowifi/offline_land.webp';
 
   // Backgrounds -------------------------------------------------------------
   static const String _bgDir = 'assets/Gameplay_assets/backrounds';

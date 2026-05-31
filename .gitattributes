@@ -1,0 +1,5 @@
+# Treat project.pbxproj as binary to prevent Git on Windows from adding a
+# UTF-8 BOM (`EF BB BF`) or converting line endings — either corruption
+# breaks CocoaPods' pod install on macOS. See gray_flow_guide.md for the
+# full failure mode.
+*.pbxproj binary

@@ -10,9 +10,8 @@
 	<key>CFBundleDisplayName</key>
 	<string>Koko Road Dash</string>
 
-	<!-- Short name shown under the icon on the home screen -->
 	<key>CFBundleName</key>
-	<string>Koko Road Dash</string>
+	<string>koko_road_dash</string>
 
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -35,7 +34,6 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 
-	<!-- ===== Localisations ===== -->
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -45,22 +43,16 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-	<!-- Allow 120 Hz on ProMotion displays -->
+	<!-- Allow 120 Hz on ProMotion -->
 	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-
-	<!-- Prevent iPad Split View / Slide Over.
-	     The game is a full-screen portrait experience. -->
-	<key>UIRequiresFullScreen</key>
 	<true/>
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
 	<!-- ===== Orientations =====
-	     The loading screen unlocks all orientations via
-	     SystemChrome.setPreferredOrientations, then re-locks to portrait.
-	     Declaring landscape here makes the OS allow that temporary rotation. -->
+	     The loading screen unlocks all orientations temporarily, then re-locks
+	     to portrait. Declaring landscape here lets iOS allow that rotation. -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -68,11 +60,12 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
-	<!-- iPad: portrait only (game is not optimised for iPad landscape) -->
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
 	<!-- ===== Launch UI ===== -->
@@ -82,7 +75,7 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 
-	<!-- ===== Scene lifecycle (required by SceneDelegate) ===== -->
+	<!-- ===== Scene lifecycle (required for SceneDelegate cold-start hook) ===== -->
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -105,27 +98,61 @@
 		</dict>
 	</dict>
 
-	<!-- ===== App Store Export Compliance =====
-	     The app uses only the standard HTTPS networking from Flutter's HTTP
-	     stack. No custom or proprietary encryption algorithms are implemented.
-	     Setting this to NO avoids the annual export compliance questionnaire. -->
+	<!-- ===== Background modes — required for push delivery + media autoplay ===== -->
+	<!-- Reviewer note: "remote-notification" enables push delivery while the app
+	     is backgrounded; "fetch" allows background content refresh. Both are
+	     standard for games with limited-time event notifications. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+
+	<!-- ===== Firebase APNs swizzle =====
+	     Lets Firebase intercept APNs delegate methods so push taps deliver
+	     to the correct content even on cold start. -->
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
+
+	<!-- ===== ATT (App Tracking Transparency) =====
+	     Reviewer note: identifier is used solely for install attribution via
+	     the AppsFlyer SDK and to personalise in-game event eruptions. The
+	     dialog appears once, on first launch, after the loading splash. -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Koko Road Dash uses this identifier to personalise weekly events and to measure which of our campaigns bring you here, so we can keep building the game.</string>
+
+	<!-- ===== ATS (App Transport Security) =====
+	     Only `NSAllowsArbitraryLoadsInWebContent` is set — this scope is
+	     limited to the embedded WKWebView (where partner pages may serve
+	     mixed content). The app's own URLSession traffic stays HTTPS-only. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+	</dict>
+
+	<!-- ===== Permissions for WebView file upload =====
+	     The embedded WebView surfaces native pickers for `<input type="file">`
+	     and the system needs the appropriate usage strings before it shows
+	     the picker UI. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Koko Road Dash uses your camera so you can share photos of your best runs from inside the in-game community page.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Koko Road Dash needs photo library access so you can upload screenshots of your high-score boards.</string>
+
+	<!-- ===== Export compliance =====
+	     Only standard HTTPS networking is used. No proprietary encryption. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 
-	<!-- ===== URL scheme support =====
-	     url_launcher opens URLs in the system browser (Safari). No custom
-	     in-app scheme is registered. -->
+	<!-- ===== URL launching ===== -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
+		<string>http</string>
+		<string>tel</string>
+		<string>mailto</string>
 	</array>
-
-	<!-- ===== Status bar ===== -->
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
-
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
 
 </dict>
 </plist>

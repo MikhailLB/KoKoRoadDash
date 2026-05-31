@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "173659775991",
+    "project_id": "kokoroaddash",
+    "storage_bucket": "kokoroaddash.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173659775991:android:54b520fbdf51e87bb484f2",
+        "android_client_info": {
+          "package_name": "com.kokogames.kokoroaddash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2Ea2QV2nVxIdWnxh8I0x3N72bWhTrucU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

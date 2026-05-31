@@ -4,39 +4,76 @@
 <dict>
 
 	<!--
-	  Privacy Manifest for Koko Road Dash
-	  Bundle: com.kokogames.koko
+	  Privacy Manifest for Koko Road Dash (com.kokogames.koko)
 
-	  The app does NOT:
-	    - collect or transmit personal data
-	    - use advertising identifiers (IDFA)
-	    - use third-party analytics or advertising SDKs
-	    - fingerprint devices
-	    - track users across apps or websites
-
-	  Required API usages declared below:
-	    • NSUserDefaults (SharedPreferences) — for local game progress only.
+	  This app integrates an install-attribution SDK (AppsFlyer) and uses the
+	  advertising identifier under App Tracking Transparency to measure which
+	  marketing campaigns bring new players and to personalise in-game events.
+	  Because the device/advertising identifier can be linked to the user and
+	  is used for cross-app/website measurement, NSPrivacyTracking is true and
+	  the attribution domains the app contacts directly are declared below.
 	-->
 
-	<!-- We do not engage in tracking as defined by App Tracking Transparency. -->
+	<!-- The app shows the ATT prompt and performs install attribution. -->
 	<key>NSPrivacyTracking</key>
-	<false/>
+	<true/>
 
-	<!-- No network domains used for tracking. -->
+	<!-- Domains the app contacts for attribution/measurement. These are
+	     blocked automatically by iOS when the user denies tracking. -->
 	<key>NSPrivacyTrackingDomains</key>
-	<array/>
-
-	<!-- No personal data is collected from users. -->
-	<key>NSPrivacyCollectedDataTypes</key>
-	<array/>
+	<array>
+		<string>appsflyer.com</string>
+		<string>t.appsflyer.com</string>
+		<string>gcdsdk.appsflyer.com</string>
+		<string>gcdsdk.integrations.appsflyer.com</string>
+		<string>register.appsflyer.com</string>
+		<string>launches.appsflyer.com</string>
+		<string>inapps.appsflyer.com</string>
+		<string>conversions.appsflyer.com</string>
+		<string>att.appsflyer.com</string>
+	</array>
 
 	<!--
-	  Required Reason APIs used by first-party code and Flutter plugins.
+	  Data collected. The Device ID (advertising / AppsFlyer identifier) is
+	  linked to the user and used for tracking and analytics. Declarations here
+	  must match the App Privacy answers in App Store Connect.
+	-->
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeDeviceID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeProductInteraction</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
+	</array>
 
-	  NSUserDefaults (used by shared_preferences plugin):
-	    Reason CA92.1 — "Used to read and write information that is only
-	    accessible to the app itself."  Matches our use of SharedPreferences
-	    for saving level progress, coins, skin selection, and settings.
+	<!--
+	  Required Reason APIs used by first-party code / Flutter plugins.
+
+	  • NSUserDefaults (shared_preferences) — reason CA92.1: information that
+	    is only accessible to the app itself (game progress, settings).
+	  • File timestamp (path_provider / file upload) — reason C617.1: to access
+	    the timestamps of files inside the app's own container.
 	-->
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
@@ -45,8 +82,15 @@
 			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
 			<key>NSPrivacyAccessedAPITypeReasons</key>
 			<array>
-				<!-- App-only preferences, not used for device fingerprinting. -->
 				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
 			</array>
 		</dict>
 	</array>
