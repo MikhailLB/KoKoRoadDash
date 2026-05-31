@@ -112,35 +112,50 @@ class _NotifyConsentPageState extends State<NotifyConsentPage> {
               return Image.asset(asset, fit: BoxFit.cover);
             },
           ),
-          SafeArea(
-            child: Align(
-              alignment: const Alignment(0, 0.9),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 36),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 320,
-                      child: KokoButton(
-                        label: _busy ? 'WAITING…' : 'TURN ON ALERTS',
-                        icon: Icons.notifications_active_rounded,
-                        style: KokoButtonStyle.gold,
-                        onPressed: _busy ? null : _allow,
-                      ),
+          OrientationBuilder(
+            builder: (BuildContext ctx, Orientation orientation) {
+              final bool land = orientation == Orientation.landscape;
+              final double btnW = land ? 220.0 : 320.0;
+              final double btnH = land ? 44.0 : 60.0;
+              final double fontSize = land ? 14.0 : 20.0;
+              final double skipSize = land ? 13.0 : 15.0;
+              final double gap = land ? 4.0 : 10.0;
+              final Alignment align =
+                  land ? const Alignment(0.72, 0.88) : const Alignment(0, 0.9);
+              return SafeArea(
+                child: Align(
+                  alignment: align,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        SizedBox(
+                          width: btnW,
+                          child: KokoButton(
+                            label: _busy ? 'WAITING…' : 'TURN ON ALERTS',
+                            icon: Icons.notifications_active_rounded,
+                            style: KokoButtonStyle.gold,
+                            height: btnH,
+                            fontSize: fontSize,
+                            onPressed: _busy ? null : _allow,
+                          ),
+                        ),
+                        SizedBox(height: gap),
+                        TextButton(
+                          onPressed: _busy ? null : _later,
+                          child: Text(
+                            'Maybe later',
+                            style: AppText.body(
+                                size: skipSize, color: AppColors.cream),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: _busy ? null : _later,
-                      child: Text(
-                        'Maybe later',
-                        style: AppText.body(size: 15, color: AppColors.cream),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),
