@@ -49,8 +49,9 @@ class AttributionWire {
         'af_id': 'mock-af-id-0000',
         'is_first_launch': true,
       };
+      _conversion = mock; // ← must set field, not only complete the future
       // ignore: avoid_print
-      print('[DBG][AW] MOCK active → af_status=Non-organic');
+      print('[DBG][AW] MOCK active → af_status=Non-organic, _conversion set');
       if (!_conversionDone.isCompleted) _conversionDone.complete(mock);
       if (!_deepLinkDone.isCompleted) _deepLinkDone.complete();
       return;
