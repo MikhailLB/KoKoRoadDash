@@ -21,9 +21,9 @@ import WebKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    let messenger = engineBridge.pluginRegistry
-      .registrar(forPlugin: "rdz_wkstore")
-      .messenger()
+    guard let messenger = engineBridge.pluginRegistry
+      .registrar(forPlugin: "rdz_wkstore")?
+      .messenger() else { return }
     let ch = FlutterMethodChannel(name: "rdz/wkstore", binaryMessenger: messenger)
     ch.setMethodCallHandler { call, result in
       guard call.method == "purge" else {
