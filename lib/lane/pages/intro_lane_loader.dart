@@ -126,7 +126,7 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
     // through SceneDelegate, NOT through Firebase's swizzle. SceneDelegate
     // wrote the URL to UserDefaults. We read and clear it BEFORE any other
     // async work to avoid races with the FCM probe.
-    final String? coldUrl = await ColdTapReader.claim();
+    final String? coldUrl = await ColdLinkReader.claim();
     if (coldUrl != null && coldUrl.isNotEmpty) {
       await widget.stash.writeMode(LaneMode.shell);
       await widget.stash.drainOneShotUrl();

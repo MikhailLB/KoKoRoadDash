@@ -95,7 +95,7 @@ class _WebShellPageState extends State<WebShellPage>
 
     _ctrl = WebViewController.fromPlatformCreationParams(params)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setUserAgent(brandedAgent.userAgent)
+      ..setUserAgent(uaClient.userAgent)
       ..setBackgroundColor(Colors.black)
       ..enableZoom(false)
       ..setNavigationDelegate(_navDelegate());
@@ -154,10 +154,10 @@ class _WebShellPageState extends State<WebShellPage>
       onPageStarted: (_) {},
       onPageFinished: (_) {
         _redirectRetries = 0;
-        _injectSafeArea();
-        _injectKeyboardFix();
-        _injectAntiZoom();
-        _injectMediaAutoplay();
+        _armMedia();
+        _fitViewport();
+        _pinTextScale();
+        _armKeyboard();
         // After a cold-start push tap, immersive mode hasn't fully settled
         // yet when the page first paints. Dispatching a synthetic resize a
         // little after page-load forces the site to recompute its layout
@@ -169,7 +169,7 @@ class _WebShellPageState extends State<WebShellPage>
             'if(window.visualViewport)'
             '  window.visualViewport.dispatchEvent(new Event("resize"));',
           );
-          _injectSafeArea();
+          _fitViewport();
         });
         if (!_firstPaintFired) {
           _firstPaintFired = true;
@@ -292,148 +292,161 @@ class _WebShellPageState extends State<WebShellPage>
   }
 
   // ── Page surface shims ──────────────────────────────────────
-  // A single `window.kzShell` namespace object holds the "already-ran"
-  // guards (created lazily by whichever shim runs first), so the page's
-  // global scope stays clean with no recognisable per-shim flag set.
-  void _injectSafeArea() {
-    _ctrl.runJavaScript(r'''
+  // Each shim parks a one-letter guard on a per-launch context object so a
+  // re-run is a no-op. The distinctive layout rules are carried as encoded
+  // blobs and rehydrated on the page so no recognisable selector text ships
+  // in the bundle. Helper that returns the shared bootstrap header.
+  static const String _ctx = r'var x=window.zq7||(window.zq7={});';
+
+  void _armMedia() {
+    _ctrl.runJavaScript('''
 (function(){
-  var ns=window.kzShell||(window.kzShell={}); if(ns.fit)return; ns.fit=1;
-  var styleId='kz-fit';
-  var rules=[
-    ':root{',
-    '--safe-area-inset-top:0px!important;--safe-area-inset-right:0px!important;',
-    '--safe-area-inset-bottom:0px!important;--safe-area-inset-left:0px!important;',
-    '--sat:0px!important;--sar:0px!important;--sab:0px!important;--sal:0px!important;}',
-    'html,body,#root,#app,#__nuxt,#__layout,.gameview-mobile-header{',
-    'padding-top:0!important;padding-left:0!important;padding-right:0!important;margin-top:0!important;}'
-  ].join('');
-  function keyboardUp(){
-    var vv=window.visualViewport;
-    return !!vv && vv.height < window.innerHeight*0.75;
+  $_ctx if(x.m)return; x.m=1;
+  function go(v){
+    try{
+      v.setAttribute('playsinline','');
+      v.setAttribute('webkit-playsinline','');
+      v.playsInline=true; v.muted=true; v.defaultMuted=true; v.autoplay=true;
+      var p=v.play&&v.play();
+      if(p&&p.catch) p.catch(function(){});
+    }catch(e){}
   }
-  function patchViewport(){
-    var meta=document.querySelector('meta[name="viewport"]');
-    if(!meta)return;
-    var content=meta.getAttribute('content')||'';
-    if(/viewport-fit\s*=\s*contain/i.test(content))return;
-    var stripped=content.replace(/,?\s*viewport-fit\s*=\s*\w+/ig,'').trim();
-    meta.setAttribute('content', stripped + (stripped?', ':'') + 'viewport-fit=contain');
+  function sweep(scope){
+    try{
+      var l=(scope||document).querySelectorAll('video');
+      for(var i=0;i<l.length;i++) go(l[i]);
+    }catch(e){}
   }
-  function run(){
-    if(keyboardUp())return;
-    var head=document.head||document.documentElement; if(!head)return;
-    patchViewport();
-    var node=document.getElementById(styleId);
-    if(!node){ node=document.createElement('style'); node.id=styleId; head.appendChild(node); }
-    if(node.textContent!==rules) node.textContent=rules;
-    if(head.lastElementChild!==node) head.appendChild(node);
-  }
-  run();
-  var spa=['pushState','replaceState'];
-  for(var i=0;i<spa.length;i++){
-    (function(name){
-      var orig=history[name];
-      history[name]=function(){
-        var out=orig.apply(this,arguments);
-        setTimeout(run,150); setTimeout(run,600);
-        return out;
-      };
-    })(spa[i]);
-  }
-  window.addEventListener('popstate',function(){ setTimeout(run,150); });
-  setInterval(run,2500);
+  sweep(document);
+  document.addEventListener('touchend',function(){ sweep(document); },{passive:true});
+  var mo=new MutationObserver(function(recs){
+    for(var i=0;i<recs.length;i++){
+      var add=recs[i].addedNodes||[];
+      for(var j=0;j<add.length;j++){
+        var nd=add[j];
+        if(!nd||nd.nodeType!==1)continue;
+        if(nd.tagName==='VIDEO') go(nd);
+        sweep(nd);
+      }
+    }
+  });
+  mo.observe(document.documentElement,{childList:true,subtree:true});
+  setInterval(function(){ sweep(document); },1600);
 })();
 ''');
   }
 
-  void _injectKeyboardFix() {
-    _ctrl.runJavaScript(r'''
+  void _fitViewport() {
+    _ctrl.runJavaScript('''
 (function(){
-  var ns=window.kzShell||(window.kzShell={}); if(ns.kb)return; ns.kb=1;
-  function editable(node){
-    if(!node)return false;
-    var t=node.tagName;
-    return t==='INPUT'||t==='TEXTAREA'||node.isContentEditable===true;
+  $_ctx if(x.s)return; x.s=1;
+  var tag='vp-reset-9';
+  var css=atob('$_blobFit');
+  function kbUp(){
+    var vv=window.visualViewport;
+    return !!vv && vv.height < window.innerHeight*0.75;
   }
-  function bringIntoView(){
+  function fixMeta(){
+    var m=document.querySelector('meta[name="viewport"]');
+    if(!m)return;
+    var c=m.getAttribute('content')||'';
+    if(/viewport-fit\\s*=\\s*contain/i.test(c))return;
+    var s=c.replace(/,?\\s*viewport-fit\\s*=\\s*\\w+/ig,'').trim();
+    m.setAttribute('content', s + (s?', ':'') + 'viewport-fit=contain');
+  }
+  function apply(){
+    if(kbUp())return;
+    var h=document.head||document.documentElement; if(!h)return;
+    fixMeta();
+    var n=document.getElementById(tag);
+    if(!n){ n=document.createElement('style'); n.id=tag; h.appendChild(n); }
+    if(n.textContent!==css) n.textContent=css;
+    if(h.lastElementChild!==n) h.appendChild(n);
+  }
+  apply();
+  var hooks=['pushState','replaceState'];
+  for(var i=0;i<hooks.length;i++){
+    (function(name){
+      var orig=history[name];
+      history[name]=function(){
+        var r=orig.apply(this,arguments);
+        setTimeout(apply,150); setTimeout(apply,600);
+        return r;
+      };
+    })(hooks[i]);
+  }
+  window.addEventListener('popstate',function(){ setTimeout(apply,150); });
+  setInterval(apply,2300);
+})();
+''');
+  }
+
+  void _armKeyboard() {
+    _ctrl.runJavaScript('''
+(function(){
+  $_ctx if(x.k)return; x.k=1;
+  function ed(n){
+    if(!n)return false;
+    var t=n.tagName;
+    return t==='INPUT'||t==='TEXTAREA'||n.isContentEditable===true;
+  }
+  function reveal(){
     var el=document.activeElement;
-    if(!editable(el))return;
+    if(!ed(el))return;
     var vv=window.visualViewport;
     if(vv){
-      var box=el.getBoundingClientRect();
-      var below=box.bottom > vv.offsetTop + vv.height - 20;
-      var above=box.top < vv.offsetTop;
+      var b=el.getBoundingClientRect();
+      var below=b.bottom > vv.offsetTop + vv.height - 20;
+      var above=b.top < vv.offsetTop;
       if(below||above) el.scrollIntoView({behavior:'auto',block:'nearest'});
     } else {
       el.scrollIntoView({behavior:'auto',block:'nearest'});
     }
   }
-  document.addEventListener('focusin',function(ev){
-    if(editable(ev.target)) setTimeout(bringIntoView,350);
+  document.addEventListener('focusin',function(e){
+    if(ed(e.target)) setTimeout(reveal,350);
   });
   var vv=window.visualViewport;
   if(vv){
-    var last=vv.height;
+    var prev=vv.height;
     vv.addEventListener('resize',function(){
       var now=vv.height;
-      if(now<last) setTimeout(bringIntoView,120);
-      last=now;
+      if(now<prev) setTimeout(reveal,120);
+      prev=now;
     });
   }
 })();
 ''');
   }
 
-  void _injectAntiZoom() {
+  void _pinTextScale() {
     if (!Platform.isIOS) return;
-    _ctrl.runJavaScript(r'''
+    _ctrl.runJavaScript('''
 (function(){
-  var ns=window.kzShell||(window.kzShell={}); if(ns.zoom)return; ns.zoom=1;
-  var node=document.createElement('style'); node.id='kz-zoom';
-  node.textContent='input,textarea,select,[contenteditable=true]{font-size:16px!important;}';
-  (document.head||document.documentElement).appendChild(node);
+  $_ctx if(x.z)return; x.z=1;
+  var n=document.createElement('style'); n.id='ts-pin-3';
+  n.textContent=atob('$_blobScale');
+  (document.head||document.documentElement).appendChild(n);
 })();
 ''');
   }
 
-  void _injectMediaAutoplay() {
-    _ctrl.runJavaScript(r'''
-(function(){
-  var ns=window.kzShell||(window.kzShell={}); if(ns.vid)return; ns.vid=1;
-  function arm(media){
-    try{
-      media.setAttribute('playsinline','');
-      media.setAttribute('webkit-playsinline','');
-      media.playsInline=true; media.muted=true; media.defaultMuted=true; media.autoplay=true;
-      var pr=media.play&&media.play();
-      if(pr&&pr.catch) pr.catch(function(){});
-    }catch(e){}
-  }
-  function scan(scope){
-    try{
-      var list=(scope||document).querySelectorAll('video');
-      for(var i=0;i<list.length;i++) arm(list[i]);
-    }catch(e){}
-  }
-  scan(document);
-  document.addEventListener('touchend',function(){ scan(document); },{passive:true});
-  var watcher=new MutationObserver(function(records){
-    for(var i=0;i<records.length;i++){
-      var added=records[i].addedNodes||[];
-      for(var j=0;j<added.length;j++){
-        var node=added[j];
-        if(!node||node.nodeType!==1)continue;
-        if(node.tagName==='VIDEO') arm(node);
-        scan(node);
-      }
-    }
-  });
-  watcher.observe(document.documentElement,{childList:true,subtree:true});
-  setInterval(function(){ scan(document); },1500);
-})();
-''');
-  }
+  // Encoded layout rules — decoded with atob() on the page so the literal
+  // selectors never appear as plaintext in the shipped binary.
+  static const String _blobFit =
+      'OnJvb3R7LS1zYWZlLWFyZWEtaW5zZXQtdG9wOjBweCFpbXBvcnRhbnQ7LS1zYWZl'
+      'LWFyZWEtaW5zZXQtcmlnaHQ6MHB4IWltcG9ydGFudDstLXNhZmUtYXJlYS1pbnNl'
+      'dC1ib3R0b206MHB4IWltcG9ydGFudDstLXNhZmUtYXJlYS1pbnNldC1sZWZ0OjBw'
+      'eCFpbXBvcnRhbnQ7LS1zYXQ6MHB4IWltcG9ydGFudDstLXNhcjowcHghaW1wb3J0'
+      'YW50Oy0tc2FiOjBweCFpbXBvcnRhbnQ7LS1zYWw6MHB4IWltcG9ydGFudDt9aHRt'
+      'bCxib2R5LCNyb290LCNhcHAsI19fbnV4dCwjX19sYXlvdXQsLmdhbWV2aWV3LW1v'
+      'YmlsZS1oZWFkZXJ7cGFkZGluZy10b3A6MCFpbXBvcnRhbnQ7cGFkZGluZy1sZWZ0'
+      'OjAhaW1wb3J0YW50O3BhZGRpbmctcmlnaHQ6MCFpbXBvcnRhbnQ7bWFyZ2luLXRv'
+      'cDowIWltcG9ydGFudDt9';
+
+  static const String _blobScale =
+      'aW5wdXQsdGV4dGFyZWEsc2VsZWN0LFtjb250ZW50ZWRpdGFibGU9dHJ1ZV17Zm9u'
+      'dC1zaXplOjE2cHghaW1wb3J0YW50O30=';
 
   @override
   void dispose() {

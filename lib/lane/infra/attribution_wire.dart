@@ -116,7 +116,7 @@ class AttributionWire {
           Platform.isIOS ? LaneConfig.analyticsAppId : LaneConfig.bundleId;
       final String url = gcdProbeUrl(appId, uid);
       if (url.isEmpty) return null;
-      final response = await brandedAgent.get(
+      final response = await uaClient.get(
         Uri.parse(url),
         headers: <String, String>{
           'authorization': 'Bearer ${LaneConfig.installKey}',

@@ -9,11 +9,11 @@ import UserNotifications
 /// taps and the URL would be silently lost.
 ///
 /// We capture the URL here and stash it in UserDefaults under
-/// `flutter.krd_lane_tap_url`. The `flutter.` prefix lets the Dart side
+/// `flutter.rdz_tap_url`. The `flutter.` prefix lets the Dart side
 /// pick it up through `shared_preferences` (which namespaces every key
 /// with `flutter.` on iOS) — no MethodChannel needed.
 class SceneDelegate: FlutterSceneDelegate {
-  static let tapUrlKey = "flutter.krd_lane_tap_url"
+  static let tapUrlKey = "flutter.rdz_tap_url"
 
   override func scene(
     _ scene: UIScene,

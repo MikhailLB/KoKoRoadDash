@@ -9,7 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'branded_agent.dart';
 import 'lane_stash.dart';
 
-const String _channelId    = 'krd_lane_pulse';
+const String _channelId    = 'rdz_alert_ch';
 const String _channelLabel = 'Koko Road Dash alerts';
 const String _channelDesc  = 'Time-sensitive in-game updates';
 const String _iconRes      = '@drawable/ic_koko_notification';
@@ -369,7 +369,7 @@ class PushPulse {
 
   Future<Uint8List?> _downloadImage(String url) async {
     try {
-      final r = await brandedAgent
+      final r = await uaClient
           .get(Uri.parse(url))
           .timeout(const Duration(seconds: 10));
       if (r.statusCode == 200) return r.bodyBytes;

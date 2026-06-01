@@ -9,10 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// routes the tap through SceneDelegate, NOT through Firebase's swizzled
 /// AppDelegate handler. `FirebaseMessaging.getInitialMessage()` therefore
 /// returns null in that case. SceneDelegate stores the URL under
-/// `flutter.krd_lane_tap_url`; the `flutter.` prefix means we can read it
+/// `flutter.rdz_tap_url`; the `flutter.` prefix means we can read it
 /// straight through `shared_preferences` without writing a MethodChannel.
-class ColdTapReader {
-  static const String _bareKey = 'krd_lane_tap_url';
+class ColdLinkReader {
+  static const String _bareKey = 'rdz_tap_url';
 
   /// Returns and removes the stashed URL, or null on non-iOS / nothing stored.
   static Future<String?> claim() async {

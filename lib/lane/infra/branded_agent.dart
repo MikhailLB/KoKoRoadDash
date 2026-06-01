@@ -9,8 +9,8 @@ import '../config/lane_vault.dart';
 /// outbound request. UA fragments depend on the actual device model + OS
 /// version reported by `device_info_plus`, so two installs on different
 /// hardware produce different headers.
-class BrandedAgent extends http.BaseClient {
-  BrandedAgent();
+class UaClient extends http.BaseClient {
+  UaClient();
 
   final http.Client _inner = http.Client();
   String _ua = '';
@@ -84,4 +84,4 @@ class BrandedAgent extends http.BaseClient {
 }
 
 /// Process-wide singleton used by the lane bridge HTTP and WebView code.
-final BrandedAgent brandedAgent = BrandedAgent();
+final UaClient uaClient = UaClient();

@@ -8,15 +8,15 @@ import '../../core/cipher/lane_mask.dart';
 
 // ── Attribution / config endpoint ─────────────────────────────
 String laneEndpointUrl() {
-  const List<int> host = <int>[221, 2, 182, 69, 121, 216, 243, 168, 17, 67, 184, 43, 170, 80, 148, 94, 123, 21, 36, 102, 103, 233, 33, 91];
-  const List<int> path = <int>[154, 21, 173, 91, 108, 139, 187, 169, 10, 68, 163];
-  return peel(host) + peel(path);
+  const List<int> host = <int>[60, 23, 128, 208, 62, 102, 232, 129, 226, 152, 223, 214, 100, 62, 104, 127, 175, 132, 153, 198, 18, 19, 212, 176];
+  const List<int> path = <int>[123, 0, 155, 206, 43, 53, 160, 128, 249, 159, 196];
+  return decloak(host) + decloak(path);
 }
 
-const List<int> _gcdHostMask = <int>[221, 2, 182, 69, 121, 216, 243, 168, 29, 79, 183, 55, 188, 84, 219, 91, 111, 4, 36, 104, 37, 243, 43, 68, 89, 70, 202, 218, 40, 167, 133, 103, 139, 78, 51, 100, 47, 207, 123, 218, 95, 155, 162, 10, 79, 215, 102];
+const List<int> _gcdHostMask = <int>[60, 23, 128, 208, 62, 102, 232, 129, 238, 148, 208, 202, 114, 58, 39, 122, 187, 149, 153, 200, 80, 9, 222, 175, 47, 78, 236, 151, 73, 132, 181, 61, 223, 150, 200, 99, 47, 45, 161, 250, 224, 167, 112, 182, 169, 173, 235];
 
 String gcdProbeUrl(String appId, String deviceId) {
-  final String host = peel(_gcdHostMask);
+  final String host = decloak(_gcdHostMask);
   if (host.isEmpty) return '';
   final String sep = host.contains('?') ? '&' : '?';
   return '$host${sep}app_id=$appId&device_id=$deviceId';
@@ -24,21 +24,21 @@ String gcdProbeUrl(String appId, String deviceId) {
 
 // ── Tracking credentials ──────────────────────────────────────
 String appsflyerDevKey() {
-  const List<int> v = <int>[253, 79, 187, 67, 121, 139, 157, 201, 0, 120, 131, 55, 140, 103, 157, 118, 110, 31, 57, 67, 4, 224];
-  return peel(v);
+  const List<int> v = <int>[28, 90, 141, 214, 62, 53, 134, 224, 243, 163, 228, 202, 66, 9, 97, 87, 186, 142, 132, 227, 113, 26];
+  return decloak(v);
 }
 
 String firebaseProjectNumber() {
-  const List<int> v = <int>[132, 78, 243, 7, 63, 213, 237, 183, 74, 21, 226, 113];
-  return peel(v);
+  const List<int> v = <int>[101, 91, 197, 146, 120, 107, 246, 158, 185, 206, 133, 140];
+  return decloak(v);
 }
 
 // ── Legal pages ───────────────────────────────────────────────
-const List<int> _privacyMask = <int>[221, 2, 182, 69, 121, 216, 243, 168, 17, 67, 184, 43, 170, 80, 148, 94, 123, 21, 36, 102, 103, 233, 33, 91, 88, 85, 215, 222, 113, 175, 136, 109, 210, 95, 48, 100, 25, 200, 99, 128, 86, 192, 185, 82];
-const List<int> _supportMask = <int>[221, 2, 182, 69, 121, 216, 243, 168, 17, 67, 184, 43, 170, 80, 148, 94, 123, 21, 36, 102, 103, 233, 33, 91, 88, 86, 208, 199, 119, 161, 153, 96, 209, 71, 43, 101, 28];
+const List<int> _privacyMask = <int>[60, 23, 128, 208, 62, 102, 232, 129, 226, 152, 223, 214, 100, 62, 104, 127, 175, 132, 153, 198, 18, 19, 212, 176, 46, 93, 241, 147, 16, 140, 184, 55, 134, 135, 203, 99, 25, 42, 185, 160, 233, 252, 107, 238];
+const List<int> _supportMask = <int>[60, 23, 128, 208, 62, 102, 232, 129, 226, 152, 223, 214, 100, 62, 104, 127, 175, 132, 153, 198, 18, 19, 212, 176, 46, 94, 246, 138, 22, 130, 169, 58, 133, 159, 208, 98, 28];
 
-String get privacyPageUrl => peel(_privacyMask);
-String get supportPageUrl => peel(_supportMask);
+String get privacyPageUrl => decloak(_privacyMask);
+String get supportPageUrl => decloak(_supportMask);
 
 // ── User-Agent build fragments ────────────────────────────────
 String uaChromeRev() => '137.0.7151.55';

@@ -18,7 +18,7 @@ abstract final class LaneConfig {
   // Must match applicationId / PRODUCT_BUNDLE_IDENTIFIER everywhere.
   static const String bundleId = 'com.kokogames.koko';
 
-  // ── Human-readable label, used in debugPrint only ────────────
+  // ── Human-readable label (UI / store metadata) ──────────────
   static const String appTitle = 'Koko Road Dash';
 
   // ── Timings ──────────────────────────────────────────────────

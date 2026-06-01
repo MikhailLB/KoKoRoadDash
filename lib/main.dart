@@ -25,7 +25,7 @@ import 'lane/infra/wire_sensor.dart';
 //   1. WidgetsFlutterBinding + status bar config
 //   2. Sprite cache + ProgressRepository preload (white-part)
 //   3. Firebase + AppCheck init in parallel
-//   4. BrandedAgent UA warm-up + LaneStash open in parallel
+//   4. UaClient UA warm-up + LaneStash open in parallel
 //   5. PushPulse boot fired but NOT awaited
 //   6. runApp(KokoRoadDashApp)
 //
@@ -91,7 +91,7 @@ Future<void> main() async {
 
   // Firebase, UA warm-up, vault open in parallel.
   final Future<void> firebaseFuture = _bootFirebase();
-  final Future<void> agentFuture = brandedAgent.primeUa();
+  final Future<void> agentFuture = uaClient.primeUa();
   final LaneStash stash = LaneStash();
   final Future<void> stashFuture = stash.open().catchError((Object _) {});
 

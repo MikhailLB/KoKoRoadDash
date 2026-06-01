@@ -21,7 +21,7 @@ class LaneDispatcher {
     }
     try {
       final Uri uri = Uri.parse(endpoint);
-      final response = await brandedAgent.post(
+      final response = await uaClient.post(
         uri,
         headers: const <String, String>{'Content-Type': 'application/json'},
         body: jsonEncode(body),

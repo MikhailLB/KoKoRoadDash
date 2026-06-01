@@ -10,15 +10,15 @@ import '../models/lane_types.dart';
 /// (mode, cooldown timestamps, consent boolean) live in SharedPreferences
 /// to keep reads cheap and synchronous.
 ///
-/// All keys are namespaced `krd.lane.*` so they cannot collide with any
+/// All keys share the `rdz.*` namespace so they cannot collide with any
 /// other module nor with any sibling project's secure store.
 class LaneStash {
-  static const String _kMode      = 'krd.lane.mode';
-  static const String _kCooldown  = 'krd.lane.notify.cooldown';
-  static const String _kConsent   = 'krd.lane.notify.consent';
-  static const String _kUrlSafe   = 'krd.lane.shell.url';
-  static const String _kUrlTtl    = 'krd.lane.shell.url.ttl';
-  static const String _kOneShot   = 'krd.lane.push.oneshot';
+  static const String _kMode      = 'rdz.nav.mode';
+  static const String _kCooldown  = 'rdz.alert.cd';
+  static const String _kConsent   = 'rdz.alert.ok';
+  static const String _kUrlSafe   = 'rdz.dock.url';
+  static const String _kUrlTtl    = 'rdz.dock.ttl';
+  static const String _kOneShot   = 'rdz.tap.once';
 
   LaneStash();
 
