@@ -2,7 +2,7 @@ name: koko_road_dash
 description: "Koko Road Dash - a turn-based road-crossing puzzle."
 publish_to: 'none'
 
-version: 1.0.1+6
+version: 1.0.1+7
 
 environment:
   sdk: ^3.11.4
