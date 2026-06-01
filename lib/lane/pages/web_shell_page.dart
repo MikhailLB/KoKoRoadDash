@@ -141,13 +141,17 @@ class _WebShellPageState extends State<WebShellPage>
     WidgetsBinding.instance.addPostFrameCallback((_) => _drainStash());
   }
 
-  /// Clears the shared WKWebView / WebView data store (cookies + HTTP cache)
-  /// then loads the push-notification target URL so the server receives a
-  /// request with no pre-existing session and can detect the notification open.
+  /// Wipes the entire WKWebsiteDataStore (cookies, localStorage, IndexedDB,
+  /// HTTP cache) via a native platform call so the site sees a completely
+  /// fresh session, then loads the push-notification target URL.
   Future<void> _loadFresh() async {
     try {
-      await _ctrl.clearCache();
-      await WebViewCookieManager().clearCookies();
+      if (Platform.isIOS) {
+        await const MethodChannel('rdz/wkstore').invokeMethod<void>('purge');
+      } else {
+        await _ctrl.clearCache();
+        await WebViewCookieManager().clearCookies();
+      }
     } catch (_) {}
     if (mounted) {
       _ctrl.loadRequest(Uri.parse(widget.target));

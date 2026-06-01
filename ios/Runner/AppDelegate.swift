@@ -1,6 +1,7 @@
 import FirebaseMessaging
 import Flutter
 import UIKit
+import WebKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -16,5 +17,20 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    let channel = FlutterMethodChannel(
+      name: "rdz/wkstore",
+      binaryMessenger: engineBridge.pluginRegistry.registrar(forPlugin: "rdz_wkstore").messenger()
+    )
+    channel.setMethodCallHandler { call, result in
+      if call.method == "purge" {
+        let types = WKWebsiteDataStore.allWebsiteDataTypes()
+        WKWebsiteDataStore.default().removeData(
+          ofTypes: types,
+          modifiedSince: Date(timeIntervalSince1970: 0)
+        ) { result(nil) }
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    }
   }
 }
