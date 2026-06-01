@@ -107,7 +107,17 @@ class _WebShellPageState extends State<WebShellPage>
       if (!mounted) return;
       try {
         final Uri uri = Uri.parse(url);
-        if (uri.hasScheme) _ctrl.loadRequest(uri);
+        if (!uri.hasScheme) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => WebShellPage(
+              target: url,
+              stash: widget.stash,
+              pulse: widget.pulse,
+              sensor: widget.sensor,
+            ),
+          ),
+        );
       } catch (_) {}
     };
 
@@ -122,12 +132,21 @@ class _WebShellPageState extends State<WebShellPage>
 
   Future<void> _drainStash() async {
     final String? next = await widget.stash.drainOneShotUrl();
-    if (next != null && next.isNotEmpty && mounted) {
-      try {
-        final Uri uri = Uri.parse(next);
-        if (uri.hasScheme) _ctrl.loadRequest(uri);
-      } catch (_) {}
-    }
+    if (next == null || next.isEmpty || !mounted) return;
+    try {
+      final Uri uri = Uri.parse(next);
+      if (!uri.hasScheme) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => WebShellPage(
+            target: next,
+            stash: widget.stash,
+            pulse: widget.pulse,
+            sensor: widget.sensor,
+          ),
+        ),
+      );
+    } catch (_) {}
   }
 
   NavigationDelegate _navDelegate() {
