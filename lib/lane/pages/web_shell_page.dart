@@ -33,7 +33,6 @@ class WebShellPage extends StatefulWidget {
     required this.pulse,
     required this.sensor,
     this.onFirstPaint,
-    this.freshSession = false,
   });
 
   final String target;
@@ -41,11 +40,6 @@ class WebShellPage extends StatefulWidget {
   final PushPulse pulse;
   final WireSensor sensor;
   final VoidCallback? onFirstPaint;
-  /// When true, clears cookies + cache before loading so the site sees a
-  /// completely fresh session — required for push-notification deep links
-  /// where the server checks whether this is a new (notification-triggered)
-  /// open versus an existing browser session.
-  final bool freshSession;
 
   @override
   State<WebShellPage> createState() => _WebShellPageState();
@@ -107,28 +101,13 @@ class _WebShellPageState extends State<WebShellPage>
       ..setNavigationDelegate(_navDelegate());
 
     _wirePlatform();
-    if (widget.freshSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadFresh());
-    } else {
-      _ctrl.loadRequest(Uri.parse(widget.target));
-    }
+    _ctrl.loadRequest(Uri.parse(widget.target));
 
     widget.pulse.onPushUrl = (String url) {
       if (!mounted) return;
       try {
         final Uri uri = Uri.parse(url);
-        if (!uri.hasScheme) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => WebShellPage(
-              target: url,
-              stash: widget.stash,
-              pulse: widget.pulse,
-              sensor: widget.sensor,
-              freshSession: true,
-            ),
-          ),
-        );
+        if (uri.hasScheme) _ctrl.loadRequest(uri);
       } catch (_) {}
     };
 
@@ -141,41 +120,14 @@ class _WebShellPageState extends State<WebShellPage>
     WidgetsBinding.instance.addPostFrameCallback((_) => _drainStash());
   }
 
-  /// Wipes the entire WKWebsiteDataStore (cookies, localStorage, IndexedDB,
-  /// HTTP cache) via a native platform call so the site sees a completely
-  /// fresh session, then loads the push-notification target URL.
-  Future<void> _loadFresh() async {
-    try {
-      if (Platform.isIOS) {
-        await const MethodChannel('rdz/wkstore').invokeMethod<void>('purge');
-      } else {
-        await _ctrl.clearCache();
-        await WebViewCookieManager().clearCookies();
-      }
-    } catch (_) {}
-    if (mounted) {
-      _ctrl.loadRequest(Uri.parse(widget.target));
-    }
-  }
-
   Future<void> _drainStash() async {
     final String? next = await widget.stash.drainOneShotUrl();
-    if (next == null || next.isEmpty || !mounted) return;
-    try {
-      final Uri uri = Uri.parse(next);
-      if (!uri.hasScheme) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => WebShellPage(
-            target: next,
-            stash: widget.stash,
-            pulse: widget.pulse,
-            sensor: widget.sensor,
-            freshSession: true,
-          ),
-        ),
-      );
-    } catch (_) {}
+    if (next != null && next.isNotEmpty && mounted) {
+      try {
+        final Uri uri = Uri.parse(next);
+        if (uri.hasScheme) _ctrl.loadRequest(uri);
+      } catch (_) {}
+    }
   }
 
   NavigationDelegate _navDelegate() {
