@@ -147,7 +147,34 @@ class _NotifyConsentPageState extends State<NotifyConsentPage> {
                           child: Text(
                             'Maybe later',
                             style: AppText.body(
-                                size: skipSize, color: AppColors.cream),
+                              size: skipSize,
+                              color: AppColors.cream,
+                            ).copyWith(
+                              shadows: land
+                                  ? null
+                                  : const <Shadow>[
+                                      Shadow(
+                                        color: Colors.black,
+                                        offset: Offset(-1, -1),
+                                        blurRadius: 0,
+                                      ),
+                                      Shadow(
+                                        color: Colors.black,
+                                        offset: Offset(1, -1),
+                                        blurRadius: 0,
+                                      ),
+                                      Shadow(
+                                        color: Colors.black,
+                                        offset: Offset(-1, 1),
+                                        blurRadius: 0,
+                                      ),
+                                      Shadow(
+                                        color: Colors.black,
+                                        offset: Offset(1, 1),
+                                        blurRadius: 0,
+                                      ),
+                                    ],
+                            ),
                           ),
                         ),
                       ],
