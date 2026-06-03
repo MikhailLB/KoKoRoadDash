@@ -131,7 +131,11 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
       await widget.stash.writeMode(LaneMode.shell);
       await widget.stash.drainOneShotUrl();
       unawaited(_dispatchInBackground());
-      _routeToShell(coldUrl);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _routeToShell(coldUrl, coldStartPush: true);
+      });
       return;
     }
 
@@ -306,7 +310,7 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
   }
 
   // ── Routing ───────────────────────────────────────────────
-  void _routeToShell(String url) {
+  void _routeToShell(String url, {bool coldStartPush = false}) {
     if (_routed) return;
     _routed = true;
     if (widget.stash.needsConsentPrompt()) {
@@ -320,6 +324,7 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
                 pulse: widget.pulse,
                 sensor: widget.sensor,
                 shellUrl: url,
+                coldStartPush: coldStartPush,
                 onTokenReady: (String token) async {
                   final String locale =
                       Platform.localeName.replaceAll('-', '_');
@@ -334,15 +339,15 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
             ),
           );
         } else {
-          _routeToShellDirect(url);
+          _routeToShellDirect(url, coldStartPush: coldStartPush);
         }
       });
     } else {
-      _routeToShellDirect(url);
+      _routeToShellDirect(url, coldStartPush: coldStartPush);
     }
   }
 
-  void _routeToShellDirect(String url) {
+  void _routeToShellDirect(String url, {bool coldStartPush = false}) {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
@@ -351,6 +356,7 @@ class _IntroLaneLoaderState extends State<IntroLaneLoader> {
           stash: widget.stash,
           pulse: widget.pulse,
           sensor: widget.sensor,
+          coldStartPush: coldStartPush,
         ),
       ),
     );

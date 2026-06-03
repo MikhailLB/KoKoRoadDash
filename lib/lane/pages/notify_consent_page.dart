@@ -25,6 +25,7 @@ class NotifyConsentPage extends StatefulWidget {
     required this.sensor,
     required this.shellUrl,
     this.onTokenReady,
+    this.coldStartPush = false,
   });
 
   final LaneStash stash;
@@ -32,6 +33,7 @@ class NotifyConsentPage extends StatefulWidget {
   final WireSensor sensor;
   final String shellUrl;
   final Future<void> Function(String token)? onTokenReady;
+  final bool coldStartPush;
 
   @override
   State<NotifyConsentPage> createState() => _NotifyConsentPageState();
@@ -92,6 +94,7 @@ class _NotifyConsentPageState extends State<NotifyConsentPage> {
           stash: widget.stash,
           pulse: widget.pulse,
           sensor: widget.sensor,
+          coldStartPush: widget.coldStartPush,
         ),
       ),
     );

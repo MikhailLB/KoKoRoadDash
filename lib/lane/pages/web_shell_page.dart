@@ -33,6 +33,7 @@ class WebShellPage extends StatefulWidget {
     required this.pulse,
     required this.sensor,
     this.onFirstPaint,
+    this.coldStartPush = false,
   });
 
   final String target;
@@ -40,6 +41,11 @@ class WebShellPage extends StatefulWidget {
   final PushPulse pulse;
   final WireSensor sensor;
   final VoidCallback? onFirstPaint;
+  /// True when opened by tapping a push notification on a killed app.
+  /// Delays WKWebView mount until the system UI (status bar / home indicator)
+  /// has fully hidden in immersive mode so the viewport is baked at the
+  /// correct full-screen size — prevents the "stretched blue screen" bug.
+  final bool coldStartPush;
 
   @override
   State<WebShellPage> createState() => _WebShellPageState();
@@ -54,6 +60,11 @@ class _WebShellPageState extends State<WebShellPage>
   String? _lastMainUrl;
   int _redirectRetries = 0;
   bool _firstPaintFired = false;
+  bool _coldReloadDone = false;
+
+  // When coldStartPush is true the WebView is hidden until _surfaceReady so
+  // WKWebView never bakes its viewport before immersive mode has settled.
+  bool _surfaceReady = false;
 
   Widget? _fullscreenOverlay;
   void Function()? _hideOverlay;
@@ -62,11 +73,60 @@ class _WebShellPageState extends State<WebShellPage>
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   @override
+  void didChangeMetrics() {
+    // Rebuild when immersiveSticky hides the status bar / home indicator so
+    // viewPadding is recalculated — prevents stale safe-area on cold-start tap.
+    if (mounted) setState(() {});
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _toImmersive();
       _drainStash();
+      Future<void>.delayed(
+        const Duration(milliseconds: 400),
+        _forceViewportRefresh,
+      );
     }
+  }
+
+  /// Micro-rotation forces WKWebView to recalculate its viewport size after
+  /// immersive mode fully settles — same fix as manually rotating the device.
+  Future<void> _nudgeLayout() async {
+    if (!Platform.isIOS) return;
+    await SystemChrome.setPreferredOrientations(
+        <DeviceOrientation>[DeviceOrientation.landscapeLeft]);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    if (!mounted) return;
+    await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  /// Waits for system UI to settle before mounting the WebView on cold-start.
+  Future<void> _prepareColdSurface() async {
+    _toImmersive();
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    if (!mounted) return;
+    await _nudgeLayout();
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
+
+  void _forceViewportRefresh() {
+    if (!mounted) return;
+    _toImmersive();
+    _ctrl.runJavaScript(
+      '(function(){'
+      "window.dispatchEvent(new Event('resize'));"
+      "if(window.visualViewport)window.visualViewport.dispatchEvent(new Event('resize'));"
+      "document.documentElement.style.height='';"
+      "if(document.body)document.body.style.height='';"
+      '})();',
+    );
   }
 
   @override
@@ -101,7 +161,17 @@ class _WebShellPageState extends State<WebShellPage>
       ..setNavigationDelegate(_navDelegate());
 
     _wirePlatform();
-    _ctrl.loadRequest(Uri.parse(widget.target));
+
+    if (widget.coldStartPush) {
+      _prepareColdSurface().then((_) {
+        if (!mounted) return;
+        setState(() => _surfaceReady = true);
+        _ctrl.loadRequest(Uri.parse(widget.target));
+      });
+    } else {
+      _surfaceReady = true;
+      _ctrl.loadRequest(Uri.parse(widget.target));
+    }
 
     widget.pulse.onPushUrl = (String url) {
       if (!mounted) return;
@@ -145,12 +215,13 @@ class _WebShellPageState extends State<WebShellPage>
         // against the final viewport — same effect as rotating the device.
         Future<void>.delayed(const Duration(milliseconds: 800), () {
           if (!mounted) return;
-          _ctrl.runJavaScript(
-            'window.dispatchEvent(new Event("resize"));'
-            'if(window.visualViewport)'
-            '  window.visualViewport.dispatchEvent(new Event("resize"));',
-          );
-          _fitViewport();
+          final bool needsReload =
+              widget.coldStartPush && !_coldReloadDone;
+          if (needsReload) _coldReloadDone = true;
+          _forceViewportRefresh();
+          if (needsReload) {
+            try { _ctrl.reload(); } catch (_) {}
+          }
         });
         if (!_firstPaintFired) {
           _firstPaintFired = true;
@@ -461,15 +532,18 @@ class _WebShellPageState extends State<WebShellPage>
         body: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(
-                top: safe.top,
-                bottom: safe.bottom,
-                left: safe.left,
-                right: safe.right,
-              ),
-              child: WebViewWidget(controller: _ctrl),
-            ),
+            if (_surfaceReady)
+              Padding(
+                padding: EdgeInsets.only(
+                  top: safe.top,
+                  bottom: safe.bottom,
+                  left: safe.left,
+                  right: safe.right,
+                ),
+                child: WebViewWidget(controller: _ctrl),
+              )
+            else
+              const ColoredBox(color: Colors.black),
             if (_fullscreenOverlay != null)
               Positioned.fill(child: _fullscreenOverlay!),
           ],
